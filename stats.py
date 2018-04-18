@@ -24,10 +24,14 @@ def prob_making_at_least_j_steps(j,d1,t): #eqn 3, \hat{q}_j
       qjhat=qjhat+sub
    return qjhat
 
-def prob_making_exactly_j_steps(j,d1,t):
+def prob_making_exactly_j_steps(j,d1,t): #eqn 4 q_j
    return prob_making_at_least_j_steps(j,d1,t)-prob_making_at_least_j_steps(j+1,d1,t)
 
-
+def prob_starting_on_i_ending_on_j(i,j,d1,t):
+   tnew = list(t)
+   for n in range(i):
+      tnew[n] = 1
+   return prob_making_exactly_j_steps(j,d1,tnew)
 
 class all_dice(object):
    def __init__(self,d1,j):
