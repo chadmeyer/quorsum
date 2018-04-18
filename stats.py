@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from numpy.linalg import inv, matrix_power
 
 def prob_success_dice(d,t): # paper s(d,t) eqn 1
    return 1-((t-1)/6.0)**d
@@ -16,6 +17,7 @@ def prob_making_at_least_j_steps(j,d1,t): #eqn 3, \hat{q}_j
    except(TypeError):
       l = 1
    if j > l: return 0
+   if j == 0: return 1
    qjhat = 0
    for d in all_dice(d1,j):
       sub = prob_success_dice(d[j-1],t[j-1])
@@ -27,11 +29,35 @@ def prob_making_at_least_j_steps(j,d1,t): #eqn 3, \hat{q}_j
 def prob_making_exactly_j_steps(j,d1,t): #eqn 4 q_j
    return prob_making_at_least_j_steps(j,d1,t)-prob_making_at_least_j_steps(j+1,d1,t)
 
-def prob_starting_on_i_ending_on_j(i,j,d1,t):
+def prob_starting_on_i_ending_on_j(i,j,d1,t): # eqn 5 q_{ij}
    tnew = list(t)
    for n in range(i):
       tnew[n] = 1
    return prob_making_exactly_j_steps(j,d1,tnew)
+
+def transition_matrix(t,d1=4):
+   l = len(t)
+   tm = np.zeros((l+1,l+1))
+   for i in range(l+1):
+      for j in range(l+1):
+         tm[i,j] = prob_starting_on_i_ending_on_j(i,j,d1,t)
+   return tm
+
+def turns_to_victory(t,i=0,d1=4):
+   Q = transition_matrix(t,d1)
+   QT = Q[:-1,:-1]
+   l = len(t)
+   s = inv(np.eye(l)-QT)
+   ans = 0
+   for n in range(i,l):
+      ans = ans + s[i,n]
+   return ans
+
+def prob_of_completion_in_n_turns(t,n,d1=4):
+   Q = transition_matrix(t,d1)
+   Qp = matrix_power(Q,n)
+   return Qp[0,-1]
+   
 
 class all_dice(object):
    def __init__(self,d1,j):
