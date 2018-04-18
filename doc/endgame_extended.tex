@@ -1,10 +1,10 @@
-\documentclass[\letterpaper]{article}
+\documentclass[letterpaper]{article}
 
 \begin{document}
 
 \title{Quorsum endgame strategic analysis}
 \author{Chad D. Meyer // Los Alamos National Laboratory}
-\date{today}
+\date{\today}
 \maketitle
 
 \begin{abstract}
@@ -31,6 +31,101 @@ has obvious implications to endgame strategy but is not enough to fully discuss
 the possibilities.
 
 This paper will be structured as follows.  In Secion 2, we outline the rules of
-quorsum of relevance to our analysis.  In Secion 3, we 
+quorsum of relevance to our analysis.  In Secion 3, we will outline the results
+of Erickson (2017).  In section 4, we discuss single-pawn strategic analysis.
+
+\section{Rules of the game}
+A Quorsum board is made up of a 4x4 grid of randomized, reversible (light and
+dark) tiles which are numbered from 2 to 6.  Each player has two pawns which
+start on a corner and are trying to move to the opposite corner.  Pawns can only
+move onto tiles of the same color that they started on.  In order to
+interact with a tile (either to flip it, or to move on to a tile) a player must
+roll a die with a value greater-than or equal-to the number shown on that tile.
+
+On a player's turn, they have 4 dice which they can allocate to moving their
+pawns and/or flipping tiles.  They must declare how each of the dice are 
+allocated before rolling and resolving any.  Any number (up to all 4) can be
+allocated to any single action, or all 4 could be allocated to different
+actions.  Once the dice are allocated, the player can choose to resolve them
+in any order, but each action must be fully resolved before moving on.
+
+Dice which are used to flip a tile are only rolled once.  If any one die shows
+the number on the tile or higher, the tile is flipped.  Regardless of the
+outcome these dice are no longer used until the next turn.  There is an
+interesting mechanic which we will invoke later in this paper, whereby a tile
+which has just been flipped cannot be immediately re-flipped by the opponent.
+In addition to being important for defensive strategy, this will drive
+two-turn offensive strategy as well.
+
+When a player wishes to move a pawn, they must first declare which adjacent
+tile (of the same color) they would like to move onto.  Note that they do not 
+have to declare the entire path ahead of time, just the individual move.  They
+then roll all of the dice which are available for moving the pawn.  If none of
+the dice show a number greater than or equal to the target tile, the move is
+over.  If, however, any of the dice are successful, the pawn moves onto this
+tile.  Any dice which showed a lower number than the tile are removed, but
+`"successful'' dice (showing a number greater than or equal to the tile) are
+retained, and the pawn can move additional spaces using these.  The player may
+end their action before they run out of dice if the path ahead is blocked (by
+another pawn or a tile which is the wrong color) or if they wish to remain in
+a particular location (usually defensively).
+
+\section{Previous Results}
+In Erickson (2017), a number of probabilities were derived, which we will
+repeat here.  The probability of rolling $d$ dice and at least one die showing
+a value greater than tile $t$ is
+\begin{equation}
+	s\left(d,t\right) = 1-\left(\frac{t-1}{6}\right)^d.
+\end{equation}
+The probability of exactly $k$ dice surviving when $d$ dice are rolled targeting
+tile value $t$ is
+\begin{equation}
+	s_k\left(d,t\right)=\left(
+	\begin{array}{c}
+		d \\
+		k
+	\end{array} \right) \left(s\left(1,t\right)\right)^k
+	\left(1-s\left(1,t\right)\right)^{d-k}.
+\end{equation}
+Now, given a "path" $\mathbf{t}$ (an array of $t$ values), the probability of
+going at least $j$ steps along $t_1 \rightarrow t_\ell$ when starting with
+$d_1$ dice is
+\begin{equation}
+	\hat{q}_j\left(d_1,\mathbf{t}\right) \sum_{d_1\geq\cdots\geq d_j\geq 1}
+	\left( s\left(d_j,t_j\right)
+	\prod_{m=1}^{j-1} s_{d_{m+1}}\left(d_m,t_m\right)\right)
+\end{equation}
+with the probability of ending exactly on tile j being
+\begin{equation}
+	q_j\left(d_1,\mathbf{t}\right)= \hat{q}_j\left(d_1,\mathbf{t}\right) -
+	\hat{q}_{j+1}\left(d_1,\mathbf{t}\right).
+\end{equation}
+The sum above is over all valid sets of $j$ die rolls for which the first roll
+is $d_1$ an the last is at least 1.  Finally, we define the probability of
+starting on space $i$ and ending on $j$ as $q_{ij}(\mathbf{t})$, which can be
+defined by setting the first $i$ values of $\mathbf{t}$ to 1 or by taking the
+appropriate sub-portion of $\mathbf{t}$ for $j-i$ steps.
+
+With these ingredients in hand we can define the transition matrix $Q$ for
+$\mathbf{t}$ where entries are $Q_{ij}=q_{ij}$.  Markov theory then predicts
+the expected number of turns and the probability of success in $N$ turns (see
+Erickson (2017) section 4.4).  
+
+\section{Single pawn strategy}
+In this section we will generalize the results of Erickson (2017) to include
+the potential need to flip a tile.  No concern of balancing actions between two
+pawns/paths will be discussed yet.
+
+Our first building block will be a composite move of flipping a tile and
+moving on to it.  We will need to consider probabilities over multiple turns
+for completeness.  This is where the ``guarded'' state of a newly-flipped tile
+comes in.  But first, we consider single-turn probabilities.  What is the
+probability of both successfully turning over a tile $t$ using $d_t$ dice and
+then successfully moving on to it using $d_m$ dice?  The probability of
+flipping is simply $s(d_t,t)$ and the probability of moving is $s(d_m,t)$,
+therefore the probability of advancing in this way is $s(d_m,t)s(d_t,t)$.
+Assuming we had 4 dice at our disposal, the single turn maximum would be
+$d_m=d_n=2$.  The two-turn probabilities are more interesting.  If one had 
+
 
 \end{document}

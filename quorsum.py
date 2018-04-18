@@ -58,6 +58,8 @@ def prob_of_completion_in_n_turns(t,n,d1=4):
    Qp = matrix_power(Q,n)
    return Qp[0,-1]
    
+def prob_flip_move(dt,dm,t):
+    return prob_success_dice(dt,t)*prob_success_dice(dm,t)
 
 class all_dice(object):
    def __init__(self,d1,j):
