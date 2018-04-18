@@ -19,8 +19,8 @@ def prob_making_at_least_j_steps(j,d1,t): #eqn 3, \hat{q}_j
    qjhat = 0
    for d in all_dice(d1,j):
       sub = prob_success_dice(d[j-1],t[j-1])
-      for m in range(j-2):
-         sub=sub*prob_k_dice_surviving_a_roll(d[m+2],d[m+1],t[m+1])
+      for m in range(j-1):
+         sub=sub*prob_k_dice_surviving_a_roll(d[m+1],d[m],t[m])
       qjhat=qjhat+sub
    return qjhat
 
