@@ -32,7 +32,9 @@ the possibilities.
 
 This paper will be structured as follows.  In Secion 2, we outline the rules of
 quorsum of relevance to our analysis.  In Secion 3, we will outline the results
-of Erickson (2017).  In section 4, we discuss single-pawn strategic analysis.
+of Erickson (2017).  In section 4, we analyze in great detail the probabilities
+surrounding a specific move of interest.  In section 5, we introduce a Markov
+model of Quorsum which includes tile flipping. 
 
 \section{Rules of the game}
 A Quorsum board is made up of a 4x4 grid of randomized, reversible (light and
@@ -111,8 +113,8 @@ $\mathbf{t}$ where entries are $Q_{ij}=q_{ij}$.  Markov theory then predicts
 the expected number of turns and the probability of success in $N$ turns (see
 Erickson (2017) section 4.4).  
 
-\section{Single pawn strategy}
-In this section we will generalize the results of Erickson (2017) to include
+\section{An illustrative example}
+In this section we will look into the probabilities associated with  generalize the results of Erickson (2017) to include
 the potential need to flip a tile.  No concern of balancing actions between two
 pawns/paths will be discussed yet.
 
@@ -125,7 +127,104 @@ then successfully moving on to it using $d_m$ dice?  The probability of
 flipping is simply $s(d_t,t)$ and the probability of moving is $s(d_m,t)$,
 therefore the probability of advancing in this way is $s(d_m,t)s(d_t,t)$.
 Assuming we had 4 dice at our disposal, the single turn maximum would be
-$d_m=d_n=2$.  The two-turn probabilities are more interesting.  If one had 
+$d_m=d_t=2$.  
 
+The two-turn probabilities are more interesting.  Let us take,
+as a motivating example, trying to flip-move onto a 6-tile.  In the first case,
+we take $d_m=d_t=2$ for two turns, and for the second, we devote all 4 dice in
+the first turn to flip the tile and all four to move.  Recall that $s(2,6) = 
+0.305555$ and $s(4,6)=0.5177$.  In this first case there are three distinct
+outcomes: the flip fails (and thus the move is negated), the flip succedes and
+the move fails (but the tile is flipped for next time) and both the flip and
+the move are successful.  This is an easily brute-force calculated quantity.
+The probabilities are as follows:
+\begin{enumerate}
+\item Great success! Turn 1 flip-move worked! 0.09334
+\item Partial success initially: at least it flipped: 0.2122
+\begin{itemize}
+\item Next turn success: 0.5177, for a product of 0.1099
+\item Next turn failure = partial advancement over all: 0.1023
+\end{itemize}
+\item The flip failed so turn 1 was a waste: 0.6944
+\begin{itemize}
+\item Next turn success: same odds as above, for a product of 0.06483
+\item Partial success: flipped the tile but still couldn't move: 0.1474
+\item Utter failure: 0.4822
+\end{itemize}
+\end{eumerate}
+In summary, 9.3\% of the time you will be successful on the first turn (and
+thus able to do something different on the second turn), 17.5\% of the time, you
+will not move the first time, but will at least move the second, 25\% of the
+time you will have at least flipped the first tile, and 48\% of the time you
+will be exactly where you started.
+
+Now, let us consider our second strategy, namely devoting all four dice to
+flip initially, and then when successful, devoting all four dice to move.  For
+comparison purposes, let us assume that we roll to flip the second time if we
+were unsuccessful the first time.
+\begin{itemize}
+\item flip, then move: 0.2681
+\item flip, then could not move: 0.2497
+\item did not flip, then flip: 0.2497
+\item failed to flip both times: 0.2326
+\end{itemize}
+Now, here we see something surprising!  The odds of success in the first
+strategy are exactly the same as those in the second!  (Note that this result
+holds for all values of $t$ and is not unique to $t=6$.)  The other odds,
+however, are different.  In strategy 1, about once every 11 tries, your pawn
+will advance in your first turn (which will never happen in strategy 2) but
+half of the time, you will be no better off than you were.  In strategy 2,
+about half of the time the tile will at least be flipped, which is better than
+in strategy 1.
+
+But, we must consider another strategy, which I will term 2b.  In this strategy,
+we are desperate to end the game, as this is our last move to home.  We use
+all four dice to flip as in strategy 2, but if unsuccessful, we revert to
+strategy 1's splitting the dice into 2 and 2.  In this case the results are
+\begin{itemize}
+\item flip, then move: 0.2681
+\item flip, then could not move: 0.2497
+\item did not flip, then flip-move: 0.04503
+\item failed to flip, then only flipped: 0.1023
+\item failed to flip, then failed to flip: 0.3349
+\end{itemize}
+Here, we managed to glean an extra 4.5\% out of the system by taking advantage
+of the fact that if we failed the first time, there was still (even minimal)
+hope of still ending the game.
+
+Some remarks are in order.  Whereas it is true that strategy 2b has the greatest
+\textit{situational} probability of succeeding (the situation being that the 
+player wants to maximize the likelihood of winning in exactly 2 turns), if this
+move is the first, rather than the last, of the path $\mathbf{t}$ it is probably
+not the best strategy.  It remains to be shown whether strategy 1 or 2 would 
+always be best or in what situations would either be the best.
+
+\section{An Extended Markov Model for 1 pawn systems}
+In Erickson (2017), the definition of the single pawn, single color path was
+shown to be Markovian.  In this section, I propose to extend that description
+to include the possibility of color-shifted tiles.
+
+In order to be Markovian, the probability of going from one `"state" to another
+`"state" must only be dependent on the present state and not be dependent on
+any past history.  Quorsum (at least in single pawn, strictly offensive mode)
+therefore qualifies as Markovian.  An essential aspect of carrying out various
+statistical analyses of Quorsum will require constructing a transition matrix
+identifying the probabilities that, in a given turn, the path + pawn state will
+transition from one state to another, which is encapsulated in the transition
+matrix $Q$.  This requires the definition of a \textit{strategy}.  A strategy,
+loosely defined, is an algorithm for choosing which actions to take given the 
+current state.  A strategy could be very complicated or very simple.  For
+Quorsum, the strategy includes where the pawn `wants' to go and how dice will
+be assigned.  Once a strategy is in place, it is possible to calculate the
+elements of the transition matrix.  
+
+\section{Extention to multi-pawn and multi-player}
+The full Quorsum system with 4 pawns each seeking different homes, and a 4x4
+grid of tiles is enormously large.  The board itself has $2^{16}$ different
+configurations and with 4 pawns on the board this numnber swells to 
+$2^{16} 64!/(64-4)! = 999,360,036,864 \sim 1\mathrm{ trillion}$.  Good luck
+finding a machine to store a trillion by trillion matrix, let alone invert it.
+Of course, many of the states are completely inaccessable for a given board and
+strategy, but nevertheless, a full analysis of the system is cumbersome.
 
 \end{document}
