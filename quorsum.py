@@ -35,6 +35,19 @@ def prob_starting_on_i_ending_on_j(i,j,d1,t): # eqn 5 q_{ij}
       tnew[n] = 1
    return prob_making_exactly_j_steps(j,d1,tnew)
 
+def multiflip_prob(t,l,qi,qj,df):
+    l = len(t)
+    n = len(l)+1
+    if len(qi) != n-1 or len(qj) != n-1 or len(df) != n=1:
+        raise ValueError('Arguments l,qi,qj and df must be lists of the same length')
+    p=1
+    for r,lr in enumerate l:
+        pr = prob_success_dice(df[r],t[l[r]-1])
+        if qi[r] == qj[r]:
+            pr = 1.0-pr
+        p = p * pr
+    return p
+
 def transition_matrix(t,d1=4):
    l = len(t)
    tm = np.zeros((l+1,l+1))
@@ -42,6 +55,10 @@ def transition_matrix(t,d1=4):
       for j in range(l+1):
          tm[i,j] = prob_starting_on_i_ending_on_j(i,j,d1,t)
    return tm
+
+
+def transition_matrix_flip(t,l,d):
+    pass
 
 def turns_to_victory(t,i=0,d1=4):
    Q = transition_matrix(t,d1)
