@@ -3,7 +3,7 @@
 \begin{document}
 
 \title{Quorsum endgame strategic analysis}
-\author{Chad D. Meyer // Los Alamos National Laboratory}
+\author{Chad D. Meyer \\ Los Alamos National Laboratory}
 \date{\today}
 \maketitle
 
@@ -34,7 +34,9 @@ This paper will be structured as follows.  In Secion 2, we outline the rules of
 quorsum of relevance to our analysis.  In Secion 3, we will outline the results
 of Erickson (2017).  In section 4, we analyze in great detail the probabilities
 surrounding a specific move of interest.  In section 5, we introduce a Markov
-model of Quorsum which includes tile flipping. 
+model of Quorsum which includes tile flipping.  In secton 6, we exercise the
+model on a number of examples.  In section 7, we discuss potential extentions
+to the model.
 
 \section{Rules of the game}
 A Quorsum board is made up of a 4x4 grid of randomized, reversible (light and
@@ -151,7 +153,7 @@ The probabilities are as follows:
 \item Partial success: flipped the tile but still couldn't move: 0.1474
 \item Utter failure: 0.4822
 \end{itemize}
-\end{eumerate}
+\end{enumerate}
 In summary, 9.3\% of the time you will be successful on the first turn (and
 thus able to do something different on the second turn), 17.5\% of the time, you
 will not move the first time, but will at least move the second, 25\% of the
@@ -216,15 +218,172 @@ loosely defined, is an algorithm for choosing which actions to take given the
 current state.  A strategy could be very complicated or very simple.  For
 Quorsum, the strategy includes where the pawn `wants' to go and how dice will
 be assigned.  Once a strategy is in place, it is possible to calculate the
-elements of the transition matrix.  
+elements of the transition matrix.  Thus, the problem had been adjusted to
+optimizing a measure over possible strategies.  Note that the strategy
+employed in the previous paper was "devote all four dice to moving always".
+
+Recall from previous that we defined our state array $\mathbf{t}$ using the path
+of tiles the pawn must traverse.  Thus, the state could be defined as "the
+position of the pawn along the path", which we will call $\mathcal{P}$.  When
+we consider the possible need to flip some tiles, me must also include the 
+state of the board/path, $\mathcal{Q}$, which corresponds to the set of all 
+accessible tile orientations.  Thus, the size of the system is $\mathcal{P}
+\otimes \mathcal{Q}$ where some of the states are inaccessable.
+
+\subsection{Defining the state}
+Now, we propose to define a limited state set which completely describes the
+single-pawn system.  Here are the assumptions we are making in this sub-section
+\begin{enumerate}
+	\item The path the pawn will follow is fixed, and single (there is no
+		alternate path that could be considered, for instance, if a
+		tile flip failed one might still be able to move (even if at
+		a low probability).
+	\item The pawn will not move backwards.
+	\item Only wrong-colored tiles will be flipped and only and exactly
+		once and must be flipped before the pawn moves to them.
+	\item Flips are always evaluated before movement
+\end{enumerate}
+Note that some of these assumptions could be relaxed in
+the future.  
+
+We first define $\mathbf{t}$, the path the pawn will take.
+These are the tile values.  As said above, let us assume there is a single
+path we will follow.  This defines $\mathcal{P}$ which is length $\ell+1$ where
+$\ell$ is the length of $\mathbf{t}$.  Next, we identify the $n\leq \ell$ 
+tiles which need to be flipped, at unique locations $1\leq l_1 < l_2 < \cdots < l_n \leq \ell$.  There are
+$2^n$ possible states of the board.  Naively, one may think that there are
+$2^n(\ell+1)$ possible states, but some of those are not accessable given our
+above assumptions.  One can think of $\mathcal{Q}$ as an $n$-dimensional space
+(with two states in each dimension).  This dimensionality is reduced by 1
+for each $l_i$ crossed.  Thus, if we define $l_0=0$ and $l_{n+1}=\ell+1$ for
+convenience, we can arive at the general formula for number of accessible
+states.
+\begin{equation}
+	\left\{\mathcal{S}\right\} = \sum_{i=0}^{n} (l_{i+1}-l_i)2^{n-i}
+\end{equation}
+Given that $\ell$ is $\mathcal{O}(6)$ at the starting point even if every tile
+needed to be flipped, the total size of $\mathcal{S}$ is only 127, which seems
+quite tractable.  If this is truly an endgame analysis, $\ell$ is more like 3-4
+with a maximum total size of 31.  There will also be the possibility, for a
+given strategy, that some otherwise possible states in $\mathcal{S}$ will never
+be accessed, and these would need to be handled properly in the analysis as
+well.
+
+\subsection{The Strategy}
+At this point, we must rigorously define what we mean by ``strategy''.  Given
+a particular state $\mathcal{S}_i$, a strategy yields a unique allocation of
+the dice.  This is sufficient for our assumptions above.  However, to be more
+general, a strategy is a perscription for all player choices given 
+$\mathcal{S}_i$.  In a general game of Quorsum that could include which order
+resolve each action, which tile to move to, etc.
+
+A strategy could be simple (always roll 4 to move until you hit a block, then
+always roll 4 to flip, repeat), or complicated (involving many ancillary
+conditions and evaluations).  We will defer discussion on \textit{specific}
+strategies until later.  
+
+\subsection{The Markov Model}
+We have already established that this is Markovian.  Given path $\mathbf{t}$,
+flipped tile positions $\{l_i\}|_{i=1\cdots n}$ and a strategy, we must
+construct the transfer matrix $Q_{ij}$.
+
+Let us define a mapping function
+$R(p,\mathbf{q})\rightarrow i$ which maps position $p$ and board state 
+$\mathbf{q}$ to index $i$, and its inverse 
+$R^{-1}(i)\rightarrow(p,\mathbf{q})$.  Note, we are
+making $\mathbf{q}$ an $n$-dimensional array (or you could think of it as an
+n-digit binary number) with components $q_r|r=1\cdots n$ where $q_r=0$ is a
+tile which needs to be flipped.  
+
+Now, we can
+construct $Q_{ij}$.  We will label $R^{-1}(i) = (p_i, \mathbf{q}_i)$.  Strategy
+dictates the dice distribution: $(d_m;d_{f,r})$ where $d_{f,r}$ is the number
+of dice assigned to flip the tile at position $l_r$.  Note that our strategy
+requires $l_r>p_i$ and $q_{i,r}=0$.
+\[
+	Q_{ij} = P(\mathbf{q}_i\rightarrow\mathbf{q}_j)P(p_i,p_j,\mathbf{q}_j)
+\]
+with
+\[
+	P(\mathbf{q}_i\rightarrow\mathbf{q}_j)=\prod_{r=1}^{n} 
+	\left\{
+		\begin{array}{ll}
+			s(d_{f,r},t_{l_r}); & q_{i,r} \neq q_{j,r} \\
+			\left(1-s(d_{f,r},t_{l_r})\right); & q_{i,r} = q_{j,r}
+		\end{array}
+	\right. 
+\]
+and
+\[
+	P(p_i,p_j,\mathbf{q}_j)=q_{p_j}(d_m,\bar{t}_{p_i}^{\mathbf{q}_j})
+\]
+where the $q_{p_j}$ function is equation 4.  The modified sequence 
+$\bar{t}_{p_i}^\mathbf{q_j}$ is such that $t$ from 1 to $p_i$ is set to 1 and
+$t_{l_r}$ is set to 7 when the tile still needs flipping (i.e. $q_{j,r}=0$).
+This is sufficient to completely define the system.
+
+\section{Examples}
+Now that we have defined the transition matrix $Q_{i,j}$, let's use it!
 
 \section{Extention to multi-pawn and multi-player}
 The full Quorsum system with 4 pawns each seeking different homes, and a 4x4
 grid of tiles is enormously large.  The board itself has $2^{16}$ different
 configurations and with 4 pawns on the board this numnber swells to 
-$2^{16} 64!/(64-4)! = 999,360,036,864 \sim 1\mathrm{ trillion}$.  Good luck
-finding a machine to store a trillion by trillion matrix, let alone invert it.
-Of course, many of the states are completely inaccessable for a given board and
-strategy, but nevertheless, a full analysis of the system is cumbersome.
+$2^{16} 64!/(64-4)! = 999,360,036,864 \sim \mathrm{1 trillion}=\mathcal{Q}$.
+Good luck finding a machine to store a trillion by trillion matrix, let alone
+invert it.  Of course, many of the states are completely inaccessable for a
+given board (pawns cannot be on a tile which does not match their color)
+and strategy (there are certain tiles where a player would never go), but
+nevertheless, a full analysis of the system is cumbersome.
+
+In the following sub-sections I will outline how we could further extend the
+model in specific ways.  Each could be done separately or in conjunction with
+each other. 
+
+\subsection{Adding defense}
+One possible single-player extension could be to model defensive strategy as
+well.  This might be interesting, because a more aggressive offensive strategy
+might be better if the player had to worry that the tiles might be flipped (and
+thus `locked' in place).
+
+This brings up an interesting complication, because Markov theory requires the
+transition probabilities to be independent of past history, but it would seem
+that the locking mechanism violates that.  However, in this case, we could
+extend the definition of $\mathcal{Q}$ to include knowledge of whether a tile
+is locked or not.  In the single-player case we are considering, our binary 
+$q_i$ must become at least trinary (for instance, 0 means `needs to be flipped,
+and could be flipped', 1 means `needs to be flipped but cannot be flipped,'
+and 2 means `is flipped and can be moved on to').  In that case we would need
+to evaluate the probabilities of defensive interference with the extant
+knowledge that we have just flipped a tile.
+
+Additionally, every tile will need to be potentially flippable, which could
+greatly increase the complexity of the problem.
+
+This could be implemented in a relatively straightforward way.  Rather than
+$Q_{ij}$, we use $\tilde{Q}_{ij} = Q_{ik}D_{kj}$ where $D_{kj}$ is just the
+transition matrix on defense.  How we build $D$ is left as an exercise for the
+reader, but if you made it this far, I have full confidence in you!
+
+\subsection{Including both player pawns}
+Let's assume the application here is endgame where the player pawns have
+passed each other and will not get in each others' way.  Strategy is still
+assigning dice, but there are now two potential pawns to move.  $\mathcal{Q}$ 
+is now the union of both paths, and $\mathcal{P}$ is $\mathcal{P}_1\otimes
+\mathcal{P}_2$
+
+\subsection{Including a non-unique (fat) path}
+Here, let's consider what I will term a fat path.  In this case we include
+possible either-or directions.  As an example consider a pawn two spaces from
+home (diagonally adjacent) one path includes a wrong-color 2 and the other
+includes a correctly-colored 6.  The player might likely try to flip the 2 with
+one die and move with the other three, but if the flip failed, you can believe
+that the player will roll the dice on the off chance that they rolled a 6
+because they would be in the same boat at the end of it all.  What if the
+numbers were 3 and 5, what is the best distribution of dice in that case?  This
+is where the model could shine.
+
+\subsection{Including both players}
+
 
 \end{document}
