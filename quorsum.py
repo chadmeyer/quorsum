@@ -38,10 +38,10 @@ def prob_starting_on_i_ending_on_j(i,j,d1,t): # eqn 5 q_{ij}
 def multiflip_prob(t,l,qi,qj,df):
     l = len(t)
     n = len(l)+1
-    if len(qi) != n-1 or len(qj) != n-1 or len(df) != n=1:
+    if len(qi) != n-1 or len(qj) != n-1 or len(df) != n-1:
         raise ValueError('Arguments l,qi,qj and df must be lists of the same length')
     p=1
-    for r,lr in enumerate l:
+    for r,lr in enumerate(l):
         pr = prob_success_dice(df[r],t[l[r]-1])
         if qi[r] == qj[r]:
             pr = 1.0-pr
