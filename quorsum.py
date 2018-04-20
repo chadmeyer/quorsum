@@ -2,16 +2,16 @@ import math
 import numpy as np
 from numpy.linalg import inv, matrix_power
 
-def prob_success_dice(d,t): # paper s(d,t) eqn 1
+def p_win(d,t): # paper s(d,t) eqn 1
    return 1-((t-1)/6.0)**d
 
 def ncr(n,r):
    return math.factorial(n)/(math.factorial(r)*math.factorial(n-r))
 
-def prob_k_dice_surviving_a_roll(k,d,t): # paper s_k(d,t) eqn 2
-   return ncr(d,k)*(prob_success_dice(1,t))**k*(1-prob_success_dice(1,t))**(d-k)
+def p_k_win(k,d,t): # paper s_k(d,t) eqn 2
+   return ncr(d,k)*(p_win(1,t))**k*(1-p_win(1,t))**(d-k)
 
-def prob_making_at_least_j_steps(j,d1,t): #eqn 3, \hat{q}_j
+def p_to_j_steps(j,d1,t): #eqn 3, \hat{q}_j
    try:
       l = len(t)
    except(TypeError):
@@ -20,20 +20,20 @@ def prob_making_at_least_j_steps(j,d1,t): #eqn 3, \hat{q}_j
    if j == 0: return 1
    qjhat = 0
    for d in all_dice(d1,j):
-      sub = prob_success_dice(d[j-1],t[j-1])
+      sub = p_win(d[j-1],t[j-1])
       for m in range(j-1):
-         sub=sub*prob_k_dice_surviving_a_roll(d[m+1],d[m],t[m])
+         sub=sub*p_k_win(d[m+1],d[m],t[m])
       qjhat=qjhat+sub
    return qjhat
 
-def prob_making_exactly_j_steps(j,d1,t): #eqn 4 q_j
-   return prob_making_at_least_j_steps(j,d1,t)-prob_making_at_least_j_steps(j+1,d1,t)
+def p_j_steps(j,d1,t): #eqn 4 q_j
+   return p_to_j_steps(j,d1,t)-p_to_j_steps(j+1,d1,t)
 
 def prob_starting_on_i_ending_on_j(i,j,d1,t): # eqn 5 q_{ij}
    tnew = list(t)
    for n in range(i):
       tnew[n] = 1
-   return prob_making_exactly_j_steps(j,d1,tnew)
+   return p_j_steps(j,d1,tnew)
 
 def multiflip_prob(t,l,qi,qj,df):
     l = len(t)
@@ -42,7 +42,7 @@ def multiflip_prob(t,l,qi,qj,df):
         raise ValueError('Arguments l,qi,qj and df must be lists of the same length')
     p=1
     for r,lr in enumerate(l):
-        pr = prob_success_dice(df[r],t[l[r]-1])
+        pr = p_win(df[r],t[l[r]-1])
         if qi[r] == qj[r]:
             pr = 1.0-pr
         p = p * pr
@@ -76,7 +76,7 @@ def prob_of_completion_in_n_turns(t,n,d1=4):
    return Qp[0,-1]
    
 def prob_flip_move(dt,dm,t):
-    return prob_success_dice(dt,t)*prob_success_dice(dm,t)
+    return p_win(dt,t)*p_win(dm,t)
 
 class all_dice(object):
    def __init__(self,d1,j):
