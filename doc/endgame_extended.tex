@@ -361,7 +361,29 @@ over 4, there is still a better than 25\% chance that you won't be home in 7
 turns with this strategy!
 
 \subsubsection{Strategy 2}
+In this strategy, we devote 4 dice to flipping and then 4 to moving (once
+successful).  The transition matrix is now
+\[
+   Q = \left(\begin{array}{ccc}
+      0.4823 & 0.5177 & 0 \\
+      0 & 0.4823 $ 0.5177 \\
+      0 & 0 & 1
+      \end{array} \right)
+\]
+and $Q_T$ is a simpler looking matrix
+\[
+   (I-Q_T)^{-1} = \left(\begin{array}{cc}
+     1.931 & 1.931 \\
+     0 & 1.931
+   \end{array} \right)
+\]
+Now, in this case the expected number of turns is 3.86, more than a quarter
+turn faster than strategy 1.  Further, the odds of success in $n$ turns is
+[0, 0.268, 0.527, 0.714, 0.834, 0.906, 0.948].  Now, there is only a 5\%
+chance that you won't be home by turn 7.  Obviously this is the better
+overall strategy.
 
+\subsection{Early 6}
 
 \section{Extention to multi-pawn and multi-player}
 The full Quorsum system with 4 pawns each seeking different homes, and a 4x4
