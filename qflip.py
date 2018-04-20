@@ -3,6 +3,7 @@ import math
 import numpy as np
 import numpy.linalg as la
 import quorsum as Q
+import copy
 
 class spath(object):
     """ A 'single' path, for which the pawn must go """
@@ -70,13 +71,14 @@ class pawn(object):
 class state(object):
     def __init__(self,p,q):
         try:
+            self.q = copy.deepcopy(q)
             self.q = list(q)
         except(TypeError):
-            self.q=[q]
+            self.q=[copy.copy(q)]
         try:
             self.p = list(p)
         except(TypeError):
-            self.p=[p]
+            self.p=[copy.copy(p)]
         self.l = len(self.q)
         self.np = len(self.p)
     def __str__(self):
@@ -98,16 +100,15 @@ class single_path_problem(object):
             working_list[i-1].flip()
         indices = [0]+self.flipped_tiles+[len(self.path)+1]
         self.all_states=[]
-        working_flist = list(self.flipped_tiles)
+        working_flist = copy.deepcopy(self.flipped_tiles)
         for i in range(len(flist)+1):
             if i>0:
                 working_list[working_flist[0]-1].flip()
                 del working_flist[0]
             for p in range(indices[i],indices[i+1]):
-                self.all_states.append(state(p,working_list))
-                print map(str,working_list), map(str,self.all_states[0].q)
+                self.all_states.append(state(p,copy.deepcopy(working_list)))
                 for b in range(1,ncolors**(len(flist)-i)):
-                    copied_wlist = list(working_list)
+                    copied_wlist = copy.deepcopy(working_list)
                     for r, f in enumerate(working_flist):
                         print b, r, f
                         if (b/(2**r))%2==1: 
