@@ -6,7 +6,7 @@
 \begin{document}
 
 \title{Quorsum endgame strategic analysis}
-\author{Chad D. Meyer \\ Los Alamos National Laboratory}
+\author{Chad D. Meyer \\ chad.meyer.120@gmail.com}
 \date{\today}
 \maketitle
 
@@ -202,15 +202,16 @@ Some remarks are in order.  Whereas it is true that strategy 2b has the greatest
 player wants to maximize the likelihood of winning in exactly 2 turns), if this
 move is the first, rather than the last, of the path $\mathbf{t}$ it is probably
 not the best strategy.  It remains to be shown whether strategy 1 or 2 would 
-always be best or in what situations would either be the best.
+always be best or in what situations would either be the best, but we will
+examine these after further development of the Markov model of quorsum.
 
 \section{An Extended Markov Model for 1 pawn systems}
 In Erickson (2017), the definition of the single pawn, single color path was
 shown to be Markovian.  In this section, I propose to extend that description
 to include the possibility of color-shifted tiles.
 
-In order to be Markovian, the probability of going from one `"state" to another
-`"state" must only be dependent on the present state and not be dependent on
+In order to be Markovian, the probability of going from one ``state" to another
+``state" must only be dependent on the present state and not be dependent on
 any past history.  Quorsum (at least in single pawn, strictly offensive mode)
 therefore qualifies as Markovian.  An essential aspect of carrying out various
 statistical analyses of Quorsum will require constructing a transition matrix
@@ -223,7 +224,7 @@ Quorsum, the strategy includes where the pawn `wants' to go and how dice will
 be assigned.  Once a strategy is in place, it is possible to calculate the
 elements of the transition matrix.  Thus, the problem had been adjusted to
 optimizing a measure over possible strategies.  Note that the strategy
-employed in the previous paper was "devote all four dice to moving always".
+employed in the previous paper was ``devote all four dice to moving always".
 
 Recall from previous that we defined our state array $\mathbf{t}$ using the path
 of tiles the pawn must traverse.  Thus, the state could be defined as "the
