@@ -72,7 +72,7 @@ class state(object):
     def __init__(self,p,q):
         try:
             self.q = copy.deepcopy(q)
-            self.q = list(q)
+            self.q = list(self.q)
         except(TypeError):
             self.q=[copy.copy(q)]
         try:
@@ -106,13 +106,11 @@ class single_path_problem(object):
                 working_list[working_flist[0]-1].flip()
                 del working_flist[0]
             for p in range(indices[i],indices[i+1]):
-                self.all_states.append(state(p,copy.deepcopy(working_list)))
+                self.all_states.append(state(p,working_list))
                 for b in range(1,ncolors**(len(flist)-i)):
                     copied_wlist = copy.deepcopy(working_list)
                     for r, f in enumerate(working_flist):
-                        print b, r, f
                         if (b/(2**r))%2==1: 
-                            print 'flipped', f
                             copied_wlist[f-1].flip()
                     self.all_states.append(state(p,copied_wlist))
 
