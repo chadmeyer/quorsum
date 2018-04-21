@@ -113,4 +113,63 @@ class single_path_problem(object):
                         if (b/(2**r))%2==1: 
                             copied_wlist[f-1].flip()
                     self.all_states.append(state(p,copied_wlist))
+        self.ns = len(self.all_states)
+    def transition_matrix(self,strat):
+        ns = self.ns
+        tm = np.zeros((ns,ns))
+        for i in range(ns):
+            for j in range(ns):
+                dice = strat.dice_choices(self.all_states[i],self.path)
+                tm[i,j] = 1.0
+                for k in range(self.path.l):
+                   tm[i,j] = tm[i,j]*prob_transition_tile(dice[1][k],self.path[k],self.all_states[i].q[k],self.all_states[j].q[k])
+                if dice[0][0] > 0: 
+                    tm[i,j]=tm[i,j]*Q.p_j_steps(self.all_states[j].p[0],dice[0][0],mod_p(self.path,self.all_states[i].p[0],self.all_states[j]))
+                elif self.all_states[i].p != self.all_states[j].p: tm[i,j]=0
+        return tm
+                
+def mod_p(path,p,state):
+    modpath = copy.deepcopy(path)
+    for i, qi in enumerate(state.q):
+        if i < p: 
+            modpath[i] = 1
+        elif qi.color() == 0:
+            modpath[1] = 7
+    return modpath
+
+class strategy(object):
+    def __init__(self):
+        pass
+    def dice_choices(self,state,path):
+        toflip = []
+        for i,t in enumerate(state.q):
+            if t.color() == 0 and (not t.locked()):  toflip.append(i)
+        if len(toflip) == 0:
+           return [[4],[0]*state.l]
+        elif len(toflip) == 1:
+           df = [0]*state.l
+           df[toflip[0]] = 2
+           return [[2],df]
+        elif len(toflip) == 2:
+           df = [0]*state.l
+           df[toflip[0]] = 2
+           df[toflip[1]] = 1
+           return [[1],df]
+        else:
+           df = [0]*state.l
+           df[toflip[0]] = 2
+           df[toflip[1]] = 2
+           return [[0],df]
+        
+def prob_transition_tile(d,t,q1,q2):
+    if q1.locked():
+        if q2.b == q1.b - 2:
+            return 1.0
+        else:
+            return 0.0
+    else:
+        p = Q.p_win(d,t)
+        if q1.color() == q2.color():
+           return 1-p
+        else: return p
 
