@@ -122,7 +122,7 @@ class single_path_problem(object):
                 dice = strat.dice_choices(self.all_states[i],self.path)
                 tm[i,j] = 1.0
                 for k in range(self.path.l):
-                   tm[i,j] = tm[i,j]*prob_transition_tile(dice[1][k],self.path[k],self.all_states[i].q[k],self.all_states[j].q[k])
+                    tm[i,j] = tm[i,j]*prob_transition_tile(dice[1][k],self.path[k],self.all_states[i].q[k],self.all_states[j].q[k])
                 if dice[0][0] > 0: 
                     tm[i,j]=tm[i,j]*Q.p_j_steps(self.all_states[j].p[0],dice[0][0],mod_p(self.path,self.all_states[i].p[0],self.all_states[j]))
                 elif self.all_states[i].p != self.all_states[j].p: tm[i,j]=0
@@ -134,7 +134,7 @@ def mod_p(path,p,state):
         if i < p: 
             modpath[i] = 1
         elif qi.color() == 0:
-            modpath[1] = 7
+            modpath[i] = 7
     return modpath
 
 class strategy(object):
@@ -160,7 +160,29 @@ class strategy(object):
            df[toflip[0]] = 2
            df[toflip[1]] = 2
            return [[0],df]
-        
+
+class flipandroll4(strategy):
+    def dice_choices(self,state,path):
+        df = [0]*state.l
+        p = min(state.p[0],state.l-1) # should guard against the l,l matrix element
+        if state.q[p].color() == 0:
+            df[state.p[0]] = 4
+            return [[0],df]
+        else:
+            return [[4],df]
+           
+class flipandroll2(strategy):
+    def dice_choices(self,state,path):
+        df = [0]*state.l
+        toflip = []
+        for i,t in enumerate(state.q):
+            if t.color() == 0 and (not t.locked()):  toflip.append(i)
+        if len(toflip) == 0:
+           return [[4],df]
+        else:
+           df[toflip[0]] = 2
+           return [[2],df]
+
 def prob_transition_tile(d,t,q1,q2):
     if q1.locked():
         if q2.b == q1.b - 2:
