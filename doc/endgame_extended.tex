@@ -416,15 +416,22 @@ that the locking mechanism violates that.  However, in this case, we could
 extend the definition of $\mathcal{Q}$ to include knowledge of whether a tile
 is locked or not.  In the single-player case we are considering, our binary 
 $q_i$ must become at least trinary (for instance, 0 means `needs to be flipped,
-and could be flipped', 1 means `needs to be flipped but cannot be flipped,'
-and 2 means `is flipped and can be moved on to').  In that case we would need
-to evaluate the probabilities of defensive interference with the extant
-knowledge that we have just flipped a tile.
+and could be flipped', 1 means `flipped and can be move to,'
+and 2 means `needs to be flipped but cannot this turn').  In that case we
+would need to evaluate the probabilities of defensive interference with the
+extant knowledge that we have just flipped a tile.  In that case, when we
+evaluate the probability of transitioning from state $i$ to $j$ we also 
+(potentially) calculate whether to transition from j to a different state.
+This must be calculated specifically as a modification of of $Q_{ij}$.
 
 Additionally, every tile will need to be potentially flippable, which could
 greatly increase the complexity of the problem.
 
-This could be implemented in a relatively straightforward way.  Rather than
+This could also be implemented in a relatively straightforward way.  If we were
+willing to include all four tile states (both colors, locked or not), then it
+would be as simple as formulating a defensice transition matrix (the defense,
+seeing the state of the board, would potentially devote a few dice to defensive
+actions.  Then, instead of using 
 $Q_{ij}$, we use $\tilde{Q}_{ij} = Q_{ik}D_{kj}$ where $D_{kj}$ is just the
 transition matrix on defense.  How we build $D$ is left as an exercise for the
 reader, but if you made it this far, I have full confidence in you!
