@@ -360,9 +360,9 @@ Now, $Q_T$ is just the upper-right 2x2 system, so $(I-Q_T)^{-1}$ is
 \]
 and so in this case the expected number of turns to success is 4.2.  The
 probability of success in $n$ turns is: [0.0934, 0.265, 0.431, 0.567,
-0.669,0.744].  Therefore, even though the "expected number of turns is a little
-over 4, there is still a better than 25\% chance that you won't be home in 7
-turns with this strategy!
+0.669,0.744].  Therefore, even though the ``expected number of turns" is a
+little over 4, there is still a better than 25\% chance that you won't be
+home in 7 turns with this strategy!
 
 \subsubsection{Strategy 2}
 In this strategy, we devote 4 dice to flipping and then 4 to moving (once
@@ -434,7 +434,11 @@ seeing the state of the board, would potentially devote a few dice to defensive
 actions.  Then, instead of using 
 $Q_{ij}$, we use $\tilde{Q}_{ij} = Q_{ik}D_{kj}$ where $D_{kj}$ is just the
 transition matrix on defense.  How we build $D$ is left as an exercise for the
-reader, but if you made it this far, I have full confidence in you!
+reader, but if you made it this far, I have full confidence in you!  A word of
+warning: in this case, the player should never encounter a tile flipped to
+their preferred position and locked, thus those states only serve as
+intermediate states so that $D$ could be represented as a matrix (representing
+a $k$-state dependent strategy).
 
 \subsection{Including both player pawns}
 Let's assume the application here is endgame where the player pawns have
@@ -444,7 +448,16 @@ is now the union of both paths, and $\mathcal{P}$ is $\mathcal{P}_1\otimes
 \mathcal{P}_2$.  The dimensionality of the problem is increased dramatically,
 but if we limit the paths to be short it may still be tractable.  Though the
 system is slightly more complicated, defining motion in state space is really
-quite easy.
+quite easy.  If the two independent paths are length $j$ and $k$, $\mathcal{P}$
+has size $(j+1)(k+1)$ and the number of states in each case is still given by
+(5).  The product of the two is the size of the system.  If $i=j=3$, and all of
+the tiles need to be flipped, there are $15^2=225$ independent states, which is
+also tractable.
+
+Now, if the pawns can interact (as when they need to pass through the middle)
+this greatly complicates all of our considerations.  The system is no longer
+decomposable.  Even without flipping tiles, there are $j(j-1)$ possible
+position states for $j$ tiles.  If some flipping is needed (or mandatory)
 
 \subsection{Including a non-unique (fat) path}
 Here, let's consider what I will term a fat path.  In this case we include
@@ -461,6 +474,57 @@ there being one additional state with a non-zero probability of being accessed
 space could become too large (or defining the strategy in this case could be
 quite difficult).
 
+One approach that seems reasonable is to define a main path and one or more
+``excursions'' which connect two points on the main path via a different route.
+This isn't absolutely general, but probably covers many useful situations.
+
 \subsection{Including both players}
+Are you a massochist?
+
+\section{Extending the analysis}
+Up to now, we have only discussed extending the definition of ``system'' to 
+include flipped tiles (and mentioned some other things above).  Otherwise, the
+analysis hasn't included anything novel.  In this section, we propose to change
+that.  
+
+Recall that we have defined the matrix $Q$ such that $Q_{ij}$ is the
+probability, given our strategy, of transitioning from state $i$ to state $j$ in
+one turn.  We reduce the system to $Q_T$ by eliminating any stationary states
+(rows and columns where the diagonal entry is 1, for instance the final state)
+and other inaccessible states (states which could never be reached from the
+initial state with any probability).  From this we define the principle
+matrix $T=(I-Q_T)^{-1}$.  This is also called the transmission matrix, and its
+entries are $T_{ij}=$ the expected (average) number of turns spent in state $j$
+when starting at state $i$ after having taken an infinite number of turns.
+
+This is just the first moment (average) and doesn't tell us everything.  Note
+above that although our two different strategies of moving onto a 6-tile only
+differed by about 1/4 turn, examining the probabilities twice as many turns 
+later showed that things looked a lot worse than that for the first strategy.
+
+This opens up the idea of the higher order moments of the system.  The process
+described in our analysis is roughly Poisson in nature and not generally
+Gaussian.  If we took a sufficient number of turns, the statistics would look
+Gaussian, but we would also probably be violating certain assumptions we made in
+forming the system.  All that said as a disclaimer, the higher moments of the
+system are the variance, skewness, kurtosis, etc., and they describe the shape
+of the probability distribution.  Roughly, the variance describes the width
+of the distribution (how good of a guess the expected turns is), the skewness
+describes whether the distribution leans one way or the other and the kurtosis
+describes how heavy the tails of the distribution are.
+
+\appendix
+\section{Implemention Notes}
+We've devoted quite a bit of space to defining various transition matrices and
+how they might be used to evaluate strategies, but very little to the practical
+details of how this all could work in reality.  As usual, we relegate such
+comments to an appendix.
+
+\subsection{State Ordering}
+In complicated systems as described above (where there could be 100s of states)
+it is certainly useful to more carefully order your states.  I like to place
+the initial state (all pawns unmoved, initial tile locations) first.  This
+allows me to quickly scan the first row of $Q$ and $Q^N$ to assess probabilities
+and likewise 
 
 \end{document}
