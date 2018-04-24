@@ -351,18 +351,18 @@ this case, our transition matrix looks like
       0 & 0 & 1
       \end{array} \right)
 \]
-Now, $Q_T$ is just the upper-right 2x2 system, so $(I-Q_T)^{-1}$ is 
+Now, $Q_T$ is just the upper-left 2x2 system, so $(I-Q_T)^{-1}$ is 
 \[
    (I-Q_T)^{-1} = \left(\begin{array}{cc}
-     2.9797 & 1.2214 \\
-     0 & 1.916
+     3.2727 & 1.3413 \\
+     0 & 1.9314
    \end{array} \right)
 \]
-and so in this case the expected number of turns to success is 4.2.  The
-probability of success in $n$ turns is: [0.0934, 0.265, 0.431, 0.567,
-0.669,0.744].  Therefore, even though the ``expected number of turns" is a
-little over 4, there is still a better than 25\% chance that you won't be
-home in 7 turns with this strategy!
+and so in this case the expected number of turns to success is 4.6.  The
+probability of success in $n$ turns is: [0.0934, 0.268, 0.442, 0.589,
+0.703,0.788,0.850,0.895].  Therefore, even though the ``expected number of
+turns" is about 4 and a half, there is still a better than 10\% chance that
+you won't be home in 8 turns with this strategy!
 
 \subsubsection{Strategy 2}
 In this strategy, we devote 4 dice to flipping and then 4 to moving (once
@@ -377,13 +377,13 @@ successful).  The transition matrix is now
 and $Q_T$ is a simpler looking matrix
 \[
    (I-Q_T)^{-1} = \left(\begin{array}{cc}
-     1.931 & 1.931 \\
-     0 & 1.931
+     1.9314 & 1.9314 \\
+     0 & 1.9314
    \end{array} \right)
 \]
 Now, in this case the expected number of turns is 3.86, more than a quarter
 turn faster than strategy 1.  Further, the odds of success in $n$ turns is
-[0, 0.268, 0.527, 0.714, 0.834, 0.906, 0.948].  Now, there is only a 5\%
+[0, 0.268, 0.527, 0.714, 0.834, 0.906, 0.948,0.972].  Now, there is only a 5\%
 chance that you won't be home by turn 7.  Obviously this is the better
 overall strategy.
 
@@ -492,21 +492,33 @@ probability, given our strategy, of transitioning from state $i$ to state $j$ in
 one turn.  We reduce the system to $Q_T$ by eliminating any stationary states
 (rows and columns where the diagonal entry is 1, for instance the final state)
 and other inaccessible states (states which could never be reached from the
-initial state with any probability).  From this we define the principle
-matrix $T=(I-Q_T)^{-1}$.  This is also called the transmission matrix, and its
-entries are $T_{ij}=$ the expected (average) number of turns spent in state $j$
-when starting at state $i$ after having taken an infinite number of turns.
+initial state with any probability).  This transient matrix encapsulates the 
+probability that you will be in any state $j$ one turn after having been in 
+state $i$.  Recognize, then, that the probabiliy of being in a given (transient)
+state after two steps is $Q_T^2$, and on and on.  If we sum those matrices, we
+get the mean number of turns spent in each state.  Thus, after $N$ turns, the
+expected time spent in state $j$, having started in state $i$ is simply
+\[
+	T_N(i,j)=\sum_{i=0}^{N} Q_T^i=I+Q_T+Q_T^2+\cdots+Q_T^N.
+\]
+If we sum the probabilities of being  in each state for each turn, we arrive
+at the total sum of number of turns being in each state.  We know that given an
+infinite number of turns, we will eventually arrive home, so if we let $N
+\rightarrow \infinity$ we arrive at what is known as the principle matrix
+$T=(I-Q_T)^{-1}$.  The entries, $T_{ij}=$ are the expected (average) number
+of turns spent in state $j$ when starting at state $i$ after having taken an
+infinite number of turns.
 
 This is just the first moment (average) and doesn't tell us everything.  Note
 above that although our two different strategies of moving onto a 6-tile only
 differed by about 1/4 turn, examining the probabilities twice as many turns 
-later showed that things looked a lot worse than that for the first strategy.
+later showed that things looked a lot worse for the second strategy.
 
 This opens up the idea of the higher order moments of the system.  The process
 described in our analysis is roughly Poisson in nature and not generally
 Gaussian.  If we took a sufficient number of turns, the statistics would look
 Gaussian, but we would also probably be violating certain assumptions we made in
-forming the system.  All that said as a disclaimer, the higher moments of the
+forming the system.  The higher moments of the
 system are the variance, skewness, kurtosis, etc., and they describe the shape
 of the probability distribution.  Roughly, the variance describes the width
 of the distribution (how good of a guess the expected turns is), the skewness
@@ -516,14 +528,35 @@ interested in the variance and the skewness.
 
 The variance is given by
 \begin{equation}
-   V = 2 T^2-T\box T
+	T_2 = T(2T_{dg}-I)
 \end{equation}
-where the box notation means element-by-element multiplication, i.e. if
-$A=B\box C$ then $A_{ij}=B_{ij}C_{ij}$ rather than the normal matrix product.
+where the subscript $dg$ means to take only the diagonal components.  The next
+moments of interest are
+\begin{equation}
+	T_3 = T(6T_{dg}^2-6T_{dg}+I)
+\end{equation}
+\begin{equation}
+	T_4 = T(24T_{dg}^3-36T_{dg}^2+14T_{dg}-I)
+\end{equation}
+If we are intersted in the statistics of mean time to completion, we can define
+the time to completion when starting in state $i$ as
+\[
+	\bar{t}=t_1=Te
+\]
+where $e$ is a column vector of all 1s (i.e. summing along a row).  Now, the
+higher moments are simply given by
+\[
+	\begin{array}{rcl}
+		t_2 & = & (2T-I)Te \\
+		t_3 & = & (6T^2-6T+I)Te \\
+		t_4 & = & (24T^3-36T^2+14T-I)Te
+	\end{array}
+\]
+We could return to the example of the roll-and-move onto a 6.  The two-and-two
+strategy has the first four moments: $t_1=4.61$, $t_2=30.8$, $t_3=276$ and
+$t_4=3150$.  More useful quantities are the standard deviation ($\sqrt{t_2}$)
+and the normalized skewness $\gamma=t_3/t_2^{1.5}$ and kurtosis $t_4/t_2^2-3$.
 
-If we sum across the first row of $V$, we will get the variance in the
-mean total time to victory.  The square root of the variance is the 
-root-mean-squared difference to the mean as expected.
 
 \appendix
 \section{Implemention Notes}
