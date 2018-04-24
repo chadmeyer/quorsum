@@ -511,7 +511,19 @@ system are the variance, skewness, kurtosis, etc., and they describe the shape
 of the probability distribution.  Roughly, the variance describes the width
 of the distribution (how good of a guess the expected turns is), the skewness
 describes whether the distribution leans one way or the other and the kurtosis
-describes how heavy the tails of the distribution are.
+describes how heavy the tails of the distribution are.  We are probably most
+interested in the variance and the skewness.
+
+The variance is given by
+\begin{equation}
+   V = 2 T^2-T\box T
+\end{equation}
+where the box notation means element-by-element multiplication, i.e. if
+$A=B\box C$ then $A_{ij}=B_{ij}C_{ij}$ rather than the normal matrix product.
+
+If we sum across the first row of $V$, we will get the variance in the
+mean total time to victory.  The square root of the variance is the 
+root-mean-squared difference to the mean as expected.
 
 \appendix
 \section{Implemention Notes}
