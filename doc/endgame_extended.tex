@@ -107,7 +107,7 @@ with the probability of ending exactly on tile j being
 	q_j\left(d_1,\mathbf{t}\right)= \hat{q}_j\left(d_1,\mathbf{t}\right) -
 	\hat{q}_{j+1}\left(d_1,\mathbf{t}\right).
 \end{equation}
-The sum above is over all valid sets of $j$ die rolls for which the first roll
+The sum above is over all valid sets of $j-1$ die rolls for which the first roll
 is $d_1$ an the last is at least 1.  Finally, we define the probability of
 starting on space $i$ and ending on $j$ as $q_{ij}(\mathbf{t})$, which can be
 defined by setting the first $i$ values of $\mathbf{t}$ to 1 or by taking the
@@ -118,7 +118,7 @@ $\mathbf{t}$ where entries are $Q_{ij}=q_{ij}$.  Markov theory then predicts
 the expected number of turns and the probability of success in $N$ turns (see
 Erickson (2017) section 4.4).  
 
-\section{An illustrative example}
+\section{A motivating example}
 In this section we will look into the probabilities associated with  generalize the results of Erickson (2017) to include
 the potential need to flip a tile.  No concern of balancing actions between two
 pawns/paths will be discussed yet.
@@ -222,12 +222,12 @@ loosely defined, is an algorithm for choosing which actions to take given the
 current state.  A strategy could be very complicated or very simple.  For
 Quorsum, the strategy includes where the pawn `wants' to go and how dice will
 be assigned.  Once a strategy is in place, it is possible to calculate the
-elements of the transition matrix.  Thus, the problem had been adjusted to
+elements of the transition matrix.  Thus, the problem has been adjusted to
 optimizing a measure over possible strategies.  Note that the strategy
 employed in the previous paper was ``devote all four dice to moving always".
 
 Recall from previous that we defined our state array $\mathbf{t}$ using the path
-of tiles the pawn must traverse.  Thus, the state could be defined as "the
+of tiles the pawn must traverse.  Thus, the state could be defined as ``the
 position of the pawn along the path", which we will call $\mathcal{P}$.  When
 we consider the possible need to flip some tiles, me must also include the 
 state of the board/path, $\mathcal{Q}$, which corresponds to the set of all 
@@ -259,7 +259,7 @@ $2^n$ possible states of the board.  Naively, one may think that there are
 $2^n(\ell+1)$ possible states, but some of those are not accessable given our
 above assumptions.  One can think of $\mathcal{Q}$ as an $n$-dimensional space
 (with two states in each dimension).  This dimensionality is reduced by 1
-for each $l_i$ crossed.  Thus, if we define $l_0=0$ and $l_{n+1}=\ell+1$ for
+for each $l_i$ crossed.  If we define $l_0=0$ and $l_{n+1}=\ell+1$ for
 convenience, we can arive at the general formula for number of accessible
 states.
 \begin{equation}
@@ -326,7 +326,7 @@ $\bar{t}_{p_i}^\mathbf{q_j}$ is such that $t$ from 1 to $p_i$ is set to 1 and
 $t_{l_r}$ is set to 7 when the tile still needs flipping (i.e. $q_{j,r}=0$).
 This is sufficient to completely define the system.
 
-\section{Examples}
+\section{Some simple examples}
 Now that we have defined the transition matrix $Q_{i,j}$, let's use it!  Note
 here that in isolating the transient sub-matrix $Q_T$, in addition to removing
 the terminal state, we may need to remove other states which appear but are
@@ -388,6 +388,98 @@ chance that you won't be home by turn 7.  Obviously this is the better
 overall strategy.
 
 \subsection{Early 6}
+
+\section{Extending the analysis}
+Up to now, we have only discussed extending the definition of ``system'' to 
+include flipped tiles (and mentioned some other things above).  Otherwise, the
+analysis hasn't included anything novel.  In this section, we propose to change
+that.  
+
+Recall that we have defined the matrix $Q$ such that $Q_{ij}$ is the
+probability, given our strategy, of transitioning from state $i$ to state $j$ in
+one turn.  We reduce the system to $Q_T$ by eliminating any stationary states
+(rows and columns where the diagonal entry is 1, for instance the final state)
+and other inaccessible states (states which could never be reached from the
+initial state with any probability).  This transient matrix encapsulates the 
+probability that you will be in any state $j$ one turn after having been in 
+state $i$.  Recognize, then, that the probabiliy of being in a given (transient)
+state after two steps is $Q_T^2$, and on and on.  If we sum those matrices, we
+get the mean number of turns spent in each state.  Thus, after $N$ turns, the
+expected time spent in state $j$, having started in state $i$ is simply
+\[
+	T_N(i,j)=\sum_{i=0}^{N} Q_T^i=I+Q_T+Q_T^2+\cdots+Q_T^N.
+\]
+If we sum the probabilities of being  in each state for each turn, we arrive
+at the total sum of number of turns being in each state.  We know that given an
+infinite number of turns, we will eventually arrive home, so if we let $N
+\rightarrow \infty$ we arrive at what is known as the principle matrix
+$T=(I-Q_T)^{-1}$.  The entries, $T_{ij}$ are the expected (average) number
+of turns spent in state $j$ when starting at state $i$ after having taken an
+infinite number of turns.
+
+This is just the first moment (average) and doesn't tell us everything.  Note
+above that although our two different strategies of moving onto a 6-tile only
+differed by about 1/4 turn, examining the probabilities twice as many turns 
+later showed that things looked a lot worse for the second strategy.
+
+This opens up the idea of the higher order moments of the system.  The process
+described in our analysis is roughly Poisson in nature and not generally
+Gaussian.  If we took a sufficient number of turns, the statistics would look
+Gaussian, but we would also probably be violating certain assumptions we made in
+forming the system.  The higher moments of the
+system are the variance, skewness, kurtosis, etc., and they describe the shape
+of the probability distribution.  Roughly, the variance describes the width
+of the distribution (how good of a guess the expected turns is), the skewness
+describes whether the distribution leans one way or the other and the kurtosis
+describes how heavy the tails of the distribution are.  We are probably most
+interested in the variance and the skewness.
+
+%The variance is given by
+%\begin{equation}
+%	T_2 = T(2T_{dg}-I)
+%\end{equation}
+%where the subscript $dg$ means to take only the diagonal components.  The next
+%moments of interest are
+%\begin{equation}
+%	T_3 = T(6T_{dg}^2-6T_{dg}+I)
+%\end{equation}
+%\begin{equation}
+%	T_4 = T(24T_{dg}^3-36T_{dg}^2+14T_{dg}-I)
+%\end{equation}
+If we are intersted in the statistics of mean time to completion, we can define
+the time to completion when starting in state $i$ as
+\[
+	\bar{t}=t_1=Te
+\]
+where $e$ is a column vector of all 1s (i.e. summing along a row).  Now, the
+higher moments are simply given by
+\[
+	\begin{array}{rcl}
+		t_2 & = & (2T-I)Te \\
+		t_3 & = & (6T^2-6T+I)Te \\
+		t_4 & = & (24T^3-36T^2+14T-I)Te
+	\end{array}
+\]
+More useful quantities are the standard deviation ($\sigma = \sqrt{t_2}$),
+the normalized skewness $\gamma=t_3/t_2^{1.5}$ and kurtosis $K=t_4/t_2^2-3$.
+Roughly speaking, the standard deviation is a measure of the width of the 
+distribution, the skewness is a measure of whether the probability
+distribution is asymmetric (weighted more to one side) and the kurtosis is a
+measure of how important the tails of the distribution are.  For our purposes,
+a high skewness and a high kurtosis means that the distribution is weighted
+heavily toward more turns.
+
+We could return to the example of the roll-and-move onto a 6.  The two-and-two
+strategy has the first four moments: $t_1=4.61$, $\sigma=5.55$, $\gamma=1.61$
+and $K=0.32$.  This has a relatively high skewness, kurtosis and standard
+deviation, so although the mean is 4.6, you will be much more likely to see a
+longer time than a shorter one.
+
+Now, for the four and zero strategy, we have $t_1=3.86$, $\sigma=4.3$, $\gamma=
+1.38$ and $K=-0.71$.  We still have a relatively high standard deviation, and
+the skewness is also relatively high, but note here the kurtosis is negative,
+meaning the tails drop off faster than a Gaussian, which is good for our
+purposes.  
 
 \section{Extention to multi-pawn and multi-player}
 The full Quorsum system with 4 pawns each seeking different homes, and a 4x4
@@ -481,82 +573,39 @@ This isn't absolutely general, but probably covers many useful situations.
 \subsection{Including both players}
 Are you a massochist?
 
-\section{Extending the analysis}
-Up to now, we have only discussed extending the definition of ``system'' to 
-include flipped tiles (and mentioned some other things above).  Otherwise, the
-analysis hasn't included anything novel.  In this section, we propose to change
-that.  
+\section{Final Remarks}
+In this paper, we have extended the Markov description of Quorsum introduced
+in Erickson (2017) to include flipping tiles, and have outlined how to further
+extend this model to potentially include multiple player pawns, a simulated
+defender and a non-single path.  We have also formalized the definition of the
+higher-order moments of the mean transit time, and what is meant by a 
+``strategy''.  
 
-Recall that we have defined the matrix $Q$ such that $Q_{ij}$ is the
-probability, given our strategy, of transitioning from state $i$ to state $j$ in
-one turn.  We reduce the system to $Q_T$ by eliminating any stationary states
-(rows and columns where the diagonal entry is 1, for instance the final state)
-and other inaccessible states (states which could never be reached from the
-initial state with any probability).  This transient matrix encapsulates the 
-probability that you will be in any state $j$ one turn after having been in 
-state $i$.  Recognize, then, that the probabiliy of being in a given (transient)
-state after two steps is $Q_T^2$, and on and on.  If we sum those matrices, we
-get the mean number of turns spent in each state.  Thus, after $N$ turns, the
-expected time spent in state $j$, having started in state $i$ is simply
-\[
-	T_N(i,j)=\sum_{i=0}^{N} Q_T^i=I+Q_T+Q_T^2+\cdots+Q_T^N.
-\]
-If we sum the probabilities of being  in each state for each turn, we arrive
-at the total sum of number of turns being in each state.  We know that given an
-infinite number of turns, we will eventually arrive home, so if we let $N
-\rightarrow \infinity$ we arrive at what is known as the principle matrix
-$T=(I-Q_T)^{-1}$.  The entries, $T_{ij}=$ are the expected (average) number
-of turns spent in state $j$ when starting at state $i$ after having taken an
-infinite number of turns.
+How is any of this useful to a quorsum player --- or an enterprising programmer
+desiring to build the ultimate quorsum AI?  Obviously, the goal is to minimize
+the number of turns to victory.  But, as we pointed out the devil is in the 
+details.  First, solving a full system exactly is daunting if not impossible.
+Second, despite the ease with which I defined and used the term 
+\textit{strategy}, in practice, putting together anything but the simplest
+strategies is difficult.  It is worth reminding the reader at this point that
+the Markov analysis presented here is useful for comparing strategic approaches,
+but does not identify the globally best strategy.  It is possible that the 
+only (or principle) use of this approach is endgame analysis, and additional
+considerations might be needed for early- or mid-game analysis.  Even if that
+is the case, I think this is a powerful approach to evaluating strategies
+in the endgame (at least).
 
-This is just the first moment (average) and doesn't tell us everything.  Note
-above that although our two different strategies of moving onto a 6-tile only
-differed by about 1/4 turn, examining the probabilities twice as many turns 
-later showed that things looked a lot worse for the second strategy.
+Ultimately, a series of tables might be useful to the serious player.  When is
+it better to flip the lower tile vs. try to move on to the higher tile?  How
+many dice should be used in particular contexts moving one or both pawns (or
+what are the tipping points between different strategies)?  Would it be more
+likely that I win if I play defensively or offensively in particular situations?
+Each of these would be answerable by the Markov analysis presented here.
 
-This opens up the idea of the higher order moments of the system.  The process
-described in our analysis is roughly Poisson in nature and not generally
-Gaussian.  If we took a sufficient number of turns, the statistics would look
-Gaussian, but we would also probably be violating certain assumptions we made in
-forming the system.  The higher moments of the
-system are the variance, skewness, kurtosis, etc., and they describe the shape
-of the probability distribution.  Roughly, the variance describes the width
-of the distribution (how good of a guess the expected turns is), the skewness
-describes whether the distribution leans one way or the other and the kurtosis
-describes how heavy the tails of the distribution are.  We are probably most
-interested in the variance and the skewness.
-
-The variance is given by
-\begin{equation}
-	T_2 = T(2T_{dg}-I)
-\end{equation}
-where the subscript $dg$ means to take only the diagonal components.  The next
-moments of interest are
-\begin{equation}
-	T_3 = T(6T_{dg}^2-6T_{dg}+I)
-\end{equation}
-\begin{equation}
-	T_4 = T(24T_{dg}^3-36T_{dg}^2+14T_{dg}-I)
-\end{equation}
-If we are intersted in the statistics of mean time to completion, we can define
-the time to completion when starting in state $i$ as
-\[
-	\bar{t}=t_1=Te
-\]
-where $e$ is a column vector of all 1s (i.e. summing along a row).  Now, the
-higher moments are simply given by
-\[
-	\begin{array}{rcl}
-		t_2 & = & (2T-I)Te \\
-		t_3 & = & (6T^2-6T+I)Te \\
-		t_4 & = & (24T^3-36T^2+14T-I)Te
-	\end{array}
-\]
-We could return to the example of the roll-and-move onto a 6.  The two-and-two
-strategy has the first four moments: $t_1=4.61$, $t_2=30.8$, $t_3=276$ and
-$t_4=3150$.  More useful quantities are the standard deviation ($\sqrt{t_2}$)
-and the normalized skewness $\gamma=t_3/t_2^{1.5}$ and kurtosis $t_4/t_2^2-3$.
-
+\section*{Acknowledgements}
+The author would like to thank his wife for putting up with many evenings of
+discussion about Markov theory and Quorsum during the development of this
+paper.
 
 \appendix
 \section{Implemention Notes}
@@ -570,6 +619,30 @@ In complicated systems as described above (where there could be 100s of states)
 it is certainly useful to more carefully order your states.  I like to place
 the initial state (all pawns unmoved, initial tile locations) first.  This
 allows me to quickly scan the first row of $Q$ and $Q^N$ to assess probabilities
-and likewise 
+and likewise $T$.  Maintaining forward-motion (the upper triangular nature of
+$Q$ would be preferable, but isn't always possible if the situation is
+complicated enough.  In a single path with flipping ordering first according
+to pawn position and second according to flipped state, with the first flipped
+state being the closest to initial possible (given this pawn position) and the
+last being all flipped (as would be for the final position).  In this way the
+states should be nearly ordered and the matrix at least block-upper-triangular
+which can aid in its inverion.
+
+\subsection{Optimization}
+When talking about constructing a 250x250 matrix it might seem daunting to face
+down 62500 potential transition probabilities (or half that if the construction
+is unidirectional), but many of those (most, probably, for such a large system)
+will be zero for a given strategy.  It is easy enough to detect that and skip
+over the calculation altogether (if a tile is supposed to be flipped but no
+dice have been assigned, for instance).  With these sorts of optimizations in
+place, and assuming we have retained a block-upper-diagonal structure, the 
+practical limit is probably $\mathcal{O}(1000)$ states, which is a single pawn
+single path with defense of length 6, a single pawn needing to flip all tiles
+of length 9, two pawns on independent paths of length 4 or so.  Each of these
+seems like play-relevant scales (moving a pawn across the board, getting two
+pawns home).  In fact, all of the careful elimination of states to only those
+potentially accessible might be unnecessary if sufficient precautions are taken
+to avoid unnecessary computations and to eliminate them at the time of computing
+$Q_T$.  
 
 \end{document}
