@@ -195,3 +195,15 @@ def prob_transition_tile(d,t,q1,q2):
            return 1-p
         else: return p
 
+def moments_of_absorption(tm):
+    tmt = tm[:-1,:-1]
+    l = tmt.shape[0]
+    N = la.inv(np.eye(l)-tmt)
+    t1 = np.sum(N[0,:])
+    t2 = np.sum(np.matmul(2*N-np.eye(l),N)[0,:])
+    t3 = np.sum(np.matmul(6*la.matrix_power(N,2)-6*N+np.eye(l),N)[0,:])
+    t4 = np.sum(np.matmul(24*la.matrix_power(N,3)-36*la.matrix_power(N,2)+14*N-np.eye(l),N)[0,:])
+    sigma = np.sqrt(t2)
+    gamma = t3/t2**1.5
+    kurt  = t4/t2**2-3
+    return t1, sigma, gamma, kurt
