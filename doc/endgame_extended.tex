@@ -33,6 +33,11 @@ using Markov theory to predict the expected number of turns to reach home.  This
 has obvious implications to endgame strategy but is not enough to fully discuss
 the possibilities.
 
+In this paper we will generalize the definition of a game's ``state" to include
+flipped tiles and outline further extensions.  We also describe the process of
+constructing the transition matrix in this case and discuss further statistical
+analysis.
+
 This paper will be structured as follows.  In Secion 2, we outline the rules of
 quorsum of relevance to our analysis.  In Secion 3, we will outline the results
 of Erickson (2017).  In section 4, we analyze in great detail the probabilities
@@ -71,14 +76,15 @@ then roll all of the dice which are available for moving the pawn.  If none of
 the dice show a number greater than or equal to the target tile, the move is
 over.  If, however, any of the dice are successful, the pawn moves onto this
 tile.  Any dice which showed a lower number than the tile are removed, but
-`"successful'' dice (showing a number greater than or equal to the tile) are
+``successful'' dice (showing a number greater than or equal to the tile) are
 retained, and the pawn can move additional spaces using these.  The player may
 end their action before they run out of dice if the path ahead is blocked (by
 another pawn or a tile which is the wrong color) or if they wish to remain in
 a particular location (usually defensively).
 
 \section{Previous Results}
-In Erickson (2017), a number of probabilities were derived, which we will
+In Erickson (2017), a number of probabilities of importance to Quorsum
+were derived, which we will
 repeat here.  The probability of rolling $d$ dice and at least one die showing
 a value greater than tile $t$ is
 \begin{equation}
@@ -94,7 +100,7 @@ tile value $t$ is
 	\end{array} \right) \left(s\left(1,t\right)\right)^k
 	\left(1-s\left(1,t\right)\right)^{d-k}.
 \end{equation}
-Now, given a "path" $\mathbf{t}$ (an array of $t$ values), the probability of
+Now, given a ``path" $\mathbf{t}$ (an array of $t$ values), the probability of
 going at least $j$ steps along $t_1 \rightarrow t_\ell$ when starting with
 $d_1$ dice is
 \begin{equation}
@@ -312,17 +318,17 @@ with
 	P(\mathbf{q}_i\rightarrow\mathbf{q}_j)=\prod_{r=1}^{n} 
 	\left\{
 		\begin{array}{lrl}
-			s(d_{f,r},t_{l_r}) & ; & q_{i,r} \neq q_{j,r} \\
-			\left(1-s(d_{f,r},t_{l_r})\right) &;& q_{i,r} = q_{j,r}
+			s(d_{f,r},t_{l_r}) & , & q_{i,r} \neq q_{j,r} \\
+			\left(1-s(d_{f,r},t_{l_r})\right) &,& q_{i,r} = q_{j,r}
 		\end{array}
 	\right. 
 \]
 and
 \[
-	P(p_i \rightarrow p_j;\mathbf{q}_j)=q_{p_j}(d_m,\bar{t}_{p_i}^{\mathbf{q}_j})
+	P(p_i \rightarrow p_j;\mathbf{q}_j)=q_{p_j}(d_m,\overline{t_{p_i}^{\mathbf{q}_j}})
 \]
 where the $q_{p_j}$ function is equation 4.  The modified sequence 
-$\bar{t}_{p_i}^\mathbf{q_j}$ is such that $t$ from 1 to $p_i$ is set to 1 and
+$\overline{t_{p_i}^\mathbf{q_j}}$ is such that $t$ from 1 to $p_i$ is set to 1 and
 $t_{l_r}$ is set to 7 when the tile still needs flipping (i.e. $q_{j,r}=0$).
 This is sufficient to completely define the system.
 
