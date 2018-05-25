@@ -183,6 +183,37 @@ class flipandroll2(strategy):
            df[toflip[0]] = 2
            return [[2],df]
 
+class flipandroll_nm(strategy):
+    def __init__(self,n,m,l=1):
+        self.n = n
+        self.m = m
+        self.l = l
+        if self.l>self.n: raise AttributeError('Cannot have l>n')
+    def _mydice(self,num):
+        if num == 1 or self.l == 1: return [self.n]
+        thisl = min(num,self.l)
+        if thisl == self.n: 
+            return [1]*self.n
+        else:
+            d = [1]*thisl
+            for i in range(thisl):
+                if thisl + i < self.n:
+                    d[i] = d[i]+1
+            return d
+    def dice_choices(self,state,path):
+        df = [0]*state.l
+        toflip = []
+        for i,t in enumerate(state.q):
+            if t.color() == 0 and (not t.locked()) and i<state.p[0]+self.m:  toflip.append(i)
+        if len(toflip) == 0:
+           return [[4],df]
+        else:
+           d = self._mydice(len(toflip))
+           for i in range(len(d)):
+               df[toflip[i]] = d[i]
+           return [[4-self.n],df]
+
+
 def prob_transition_tile(d,t,q1,q2):
     if q1.locked():
         if q2.b == q1.b - 2:
@@ -207,3 +238,24 @@ def moments_of_absorption(tm):
     gamma = t3/t2**1.5
     kurt  = t4/t2**2-3
     return t1, sigma, gamma, kurt
+
+def find_lowest_nm(prob):
+    minval = 10000.0
+    for n in range(1,5):
+        for m in range(1,prob.path.l+1):
+            m1 = moments_of_absorption(prob.transition_matrix(flipandroll_nm(n,m)))[0]
+            if m1<minval:
+                minval = m1
+                soln = (n,m)
+    return minval,soln
+
+def find_lowest_nml(prob):
+    minval = 10000.0
+    for n in range(1,5):
+        for m in range(1,prob.path.l+1):
+            for l in range(1,min(n,len(prob.flipped_tiles))+1):
+                m1 = moments_of_absorption(prob.transition_matrix(flipandroll_nm(n,m,l)))[0]
+                if m1<minval:
+                    minval = m1
+                    soln = (n,m,l)
+    return minval,soln
